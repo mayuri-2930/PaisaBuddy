@@ -1,7 +1,5 @@
 package com.paisabuddy.backend.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.paisabuddy.backend.model.DashboardResponse;
@@ -10,43 +8,50 @@ import com.paisabuddy.backend.model.Transaction;
 import com.paisabuddy.backend.model.User;
 import com.paisabuddy.backend.repository.ReservedRepository;
 import com.paisabuddy.backend.repository.TransactionRepository;
-import com.paisabuddy.backend.repository.UserRepository;
 
 @Service
 public class DashboardService {
 
-    private final UserRepository userRepo;
     private final TransactionRepository transactionRepo;
     private final ReservedRepository reservedRepo;
+    private final UserService userService;
 
-    public DashboardService(UserRepository userRepo,
-                            TransactionRepository transactionRepo,
-                            ReservedRepository reservedRepo) {
-        this.userRepo = userRepo;
+    public DashboardService(TransactionRepository transactionRepo,
+                            ReservedRepository reservedRepo,
+                            UserService userService) {
         this.transactionRepo = transactionRepo;
         this.reservedRepo = reservedRepo;
+        this.userService = userService;
     }
 
     public DashboardResponse getDashboard(Long userId) {
 
-        User user = userRepo.findById(userId).orElseThrow();
+        User user = userService.getUserById(userId);
 
-        List<Transaction> transactions = transactionRepo.findByUser(user);
-        List<Reserved> reservedList = reservedRepo.findByUserId(userId);
-
-        double totalExpenses = transactions.stream()
+        // ✅ Total Spent
+        double totalSpent = transactionRepo.findByUser(user)
+                .stream()
                 .mapToDouble(Transaction::getAmount)
                 .sum();
 
-        double totalReserved = reservedList.stream()
+        // ✅ Total Reserved (only pending)
+        double totalReserved = reservedRepo.findByUser(user)
+                .stream()
                 .filter(r -> r.getStatus() == Reserved.Status.PENDING)
                 .mapToDouble(Reserved::getAmount)
                 .sum();
 
+        // ✅ Monthly Income
         double income = user.getMonthlyIncome() != null ? user.getMonthlyIncome() : 0;
 
-        double balance = income - (totalExpenses + totalReserved);
+        // ✅ Remaining Balance
+        double remainingBalance = income - (totalSpent + totalReserved);
 
-        return new DashboardResponse(income, totalExpenses, totalReserved, balance);
+        return new DashboardResponse(
+                totalSpent,
+                totalReserved,
+                remainingBalance,
+                income
+        );
     }
 }

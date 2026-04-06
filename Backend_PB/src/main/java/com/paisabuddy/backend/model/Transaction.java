@@ -26,11 +26,10 @@ public class Transaction {
 
     private LocalDate date;
 
-    @ManyToOne
+    @ManyToOne(optional = false) // ✅ ensure user is required
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Constructors
     public Transaction() {}
 
     public Transaction(Double amount, String category, String description, LocalDate date, User user) {

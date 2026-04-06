@@ -5,47 +5,36 @@ import org.springframework.stereotype.Service;
 import com.paisabuddy.backend.model.User;
 import com.paisabuddy.backend.repository.UserRepository;
 
-@Autowired
-private BCryptPasswordEncoder passwordEncoder;
-
-// On registration
-user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-// On login
-if (!passwordEncoder.matches(password, user.getPassword())) {
-    throw new RuntimeException("Invalid credentials");
-}
 @Service
 public class UserService {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    // Fetch user by ID
-    public User getUserById(Long id) {
-        return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    // Fetch user by email
-    public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    // Save User
+    // Save user
     public User saveUser(User user) {
-        return userRepo.save(user);
+        return userRepository.save(user);
     }
 
-    // Update income
-    public User updateIncome(Long id, Double income) {
-        User user = userRepo.findById(id)
+    // Get by email
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // Get by ID
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // ✅ FIX: Missing method (caused compilation error)
+    public User updateIncome(Long userId, Double income) {
+        User user = getUserById(userId);
         user.setMonthlyIncome(income);
-        return userRepo.save(user);
+        return userRepository.save(user);
     }
 }

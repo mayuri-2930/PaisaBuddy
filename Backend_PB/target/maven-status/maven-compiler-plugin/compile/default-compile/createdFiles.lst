@@ -7,6 +7,7 @@ com/paisabuddy/backend/model/Reserved$Status.class
 com/paisabuddy/backend/service/AuthService.class
 com/paisabuddy/backend/security/JwtAuthenticationFilter.class
 com/paisabuddy/backend/service/TransactionService.class
+com/paisabuddy/backend/dto/TransactionResponse.class
 com/paisabuddy/backend/model/Transaction.class
 com/paisabuddy/backend/model/Reserved.class
 com/paisabuddy/backend/model/User.class

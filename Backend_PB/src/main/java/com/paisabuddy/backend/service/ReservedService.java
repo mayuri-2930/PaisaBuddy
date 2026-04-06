@@ -18,25 +18,28 @@ public class ReservedService {
     private final UserService userService;
 
     public ReservedService(ReservedRepository reservedRepo,
-            TransactionRepository transactionRepo,
-            UserService userService) {
+                           TransactionRepository transactionRepo,
+                           UserService userService) {
         this.reservedRepo = reservedRepo;
         this.transactionRepo = transactionRepo;
         this.userService = userService;
     }
 
     // Add Reserved
-    public Reserved addReserved(Reserved reserved) {
+    public Reserved addReserved(Long userId, Reserved reserved) {
+        User user = userService.getUserById(userId);
+        reserved.setUser(user);
         reserved.setStatus(Reserved.Status.PENDING);
         return reservedRepo.save(reserved);
     }
 
     // Get Reserved
     public List<Reserved> getReserved(Long userId) {
-        return reservedRepo.findByUserId(userId);
+        User user = userService.getUserById(userId);
+        return reservedRepo.findByUser(user);
     }
 
-    // Mark as Paid + Create Transaction
+    // Mark as Paid & create Transaction
     public void markAsPaid(Long id) {
         Reserved r = reservedRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserved entry not found"));
@@ -44,9 +47,8 @@ public class ReservedService {
         r.setStatus(Reserved.Status.PAID);
         reservedRepo.save(r);
 
-        User user = userService.getUserById(r.getUserId());  // fetch User from reserved's userId
         Transaction t = new Transaction();
-        t.setUser(user);  // assign User object
+        t.setUser(r.getUser());
         t.setAmount(r.getAmount());
         t.setCategory(r.getTitle());
         t.setDescription("Reserved payment: " + r.getTitle());

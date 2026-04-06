@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
-    private final String jwtSecret = "secret-key"; // match AuthService
+    private final String jwtSecret = "secret-key";
 
     public JwtAuthenticationFilter(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -30,32 +30,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+                                   HttpServletResponse response,
+                                   FilterChain filterChain)
             throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(jwtSecret)
-                        .parseClaimsJws(token)
-                        .getBody();
 
-                Long userId = Long.parseLong(claims.getSubject());
-                User user = userRepository.findById(userId).orElse(null);
+        // ✅ Allow requests without token
+        if (header == null || !header.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ FIX: token must be declared here
+        String token = header.substring(7);
+
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecret)
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String email = claims.getSubject();
+
+            System.out.println("EMAIL FROM TOKEN: " + email);
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                User user = userRepository.findByEmail(email).orElse(null);
 
                 if (user != null) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            user, null, null
-                    );
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(user, null, null);
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    System.out.println("AUTH SET FOR: " + user.getEmail());
                 }
-            } catch (Exception e) {
-                // token invalid or expired
             }
+
+        } catch (Exception e) {
+            e.printStackTrace(); // ✅ show real JWT errors
         }
 
         filterChain.doFilter(request, response);

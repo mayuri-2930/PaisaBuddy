@@ -1,11 +1,11 @@
 package com.paisabuddy.backend.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
@@ -15,32 +15,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Password cannot be null or empty")
     private String password;
 
-    @Column(name = "monthly_income")
     private Double monthlyIncome;
 
-    // Default constructor
+    // No-arg constructor is required by JPA
     public User() {}
 
-    // All-args constructor
-    public User(Long id, String name, String email, String password, Double monthlyIncome) {
-        this.id = id;
+    // Optional: all-args constructor
+    public User(String name, String email, String password, Double monthlyIncome) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.monthlyIncome = monthlyIncome;
     }
 
-    // Getters & Setters
+    // Getters and setters
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -53,14 +49,4 @@ public class User {
 
     public Double getMonthlyIncome() { return monthlyIncome; }
     public void setMonthlyIncome(Double monthlyIncome) { this.monthlyIncome = monthlyIncome; }
-
-    @Override
-    public String toString() {
-        return "User{" +
-               "id=" + id +
-               ", name='" + name + '\'' +
-               ", email='" + email + '\'' +
-               ", monthlyIncome=" + monthlyIncome +
-               '}';
-    }
 }
