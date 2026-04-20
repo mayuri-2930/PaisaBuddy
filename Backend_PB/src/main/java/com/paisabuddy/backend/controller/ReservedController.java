@@ -17,20 +17,24 @@ import org.springframework.web.bind.annotation.RestController;
 import com.paisabuddy.backend.model.Reserved;
 import com.paisabuddy.backend.model.User;
 import com.paisabuddy.backend.service.ReservedService;
+import com.paisabuddy.backend.service.UserService;
 
 @RestController
 @RequestMapping("/api/reserved")
 public class ReservedController {
 
     private final ReservedService service;
+    private final UserService userService;
 
-    public ReservedController(ReservedService service) {
+    public ReservedController(ReservedService service, UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     // Add Reserved
     @PostMapping
     public ResponseEntity<Reserved> add(@RequestBody Reserved reserved) {
+
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
 
@@ -41,6 +45,7 @@ public class ReservedController {
     // Get Reserved
     @GetMapping
     public ResponseEntity<List<Reserved>> getAll() {
+
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
 
@@ -50,9 +55,8 @@ public class ReservedController {
 
     // Mark as Paid
     @PutMapping("/{id}/pay")
-    public ResponseEntity<Void> pay(@PathVariable Long id) {
-        service.markAsPaid(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Reserved> pay(@PathVariable Long id) {
+        return ResponseEntity.ok(service.markAsPaid(id));
     }
 
     // Delete Reserved
@@ -62,10 +66,17 @@ public class ReservedController {
         return ResponseEntity.ok().build();
     }
 
-    // Helper to get authenticated user
+    // =========================
+    // AUTH FIX (NO LOGIC CHANGE)
+    // =========================
     private User getAuthenticatedUser() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User)) return null;
-        return (User) auth.getPrincipal();
+
+        if (auth == null || auth.getName() == null) return null;
+
+        String email = auth.getName();
+
+        return userService.getUserByEmail(email);
     }
 }

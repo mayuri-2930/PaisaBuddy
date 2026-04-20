@@ -14,51 +14,53 @@ import org.springframework.web.bind.annotation.RestController;
 import com.paisabuddy.backend.model.Transaction;
 import com.paisabuddy.backend.model.User;
 import com.paisabuddy.backend.service.TransactionService;
+import com.paisabuddy.backend.service.UserService;
 
 @RestController
 @RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final UserService userService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, UserService userService) {
         this.transactionService = transactionService;
+        this.userService = userService;
     }
 
-    // ✅ Add transaction
+    // Add transaction
     @PostMapping
     public ResponseEntity<Transaction> addTransaction(@RequestBody Transaction transaction) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        System.out.println("AUTH: " + auth);
-
-        if (auth == null || !(auth.getPrincipal() instanceof User)) {
-            System.out.println("AUTH FAILED");
-            return ResponseEntity.status(401).build();
-        }
-
-        User user = (User) auth.getPrincipal();
-
-        System.out.println("AUTH USER: " + user.getEmail());
+        User user = getAuthenticatedUser();
+        if (user == null) return ResponseEntity.status(401).build();
 
         Transaction savedTransaction = transactionService.addTransaction(user.getId(), transaction);
         return ResponseEntity.ok(savedTransaction);
     }
 
-    // ✅ Get transactions
+    // Get transactions
     @GetMapping
     public ResponseEntity<List<Transaction>> getTransactions() {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || !(auth.getPrincipal() instanceof User)) {
-            return ResponseEntity.status(401).build();
-        }
-
-        User user = (User) auth.getPrincipal();
+        User user = getAuthenticatedUser();
+        if (user == null) return ResponseEntity.status(401).build();
 
         List<Transaction> transactions = transactionService.getTransactions(user.getId());
         return ResponseEntity.ok(transactions);
+    }
+
+    // =========================
+    // AUTH FIX (NO LOGIC CHANGE)
+    // =========================
+    private User getAuthenticatedUser() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || auth.getName() == null) return null;
+
+        String email = auth.getName();
+
+        return userService.getUserByEmail(email);
     }
 }

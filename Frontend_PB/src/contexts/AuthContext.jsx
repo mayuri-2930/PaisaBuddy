@@ -8,24 +8,38 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    if (token) {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) setUser(JSON.parse(storedUser));
+  if (token) {
+    const storedUser = localStorage.getItem('user');
+
+    if (storedUser && storedUser !== "undefined") {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.log("Invalid user in storage");
+        localStorage.removeItem('user');
+      }
     }
-  }, [token]);
+  }
+}, [token]);
 
   const login = async (email, password) => {
     const data = await loginUser(email, password);
     setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    setUser(data.user || null);
+
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
   };
 
   const register = async (userData) => {
     const data = await registerUser(userData);
     setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    setUser(data.user || null);
+
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
   };
 
   const logout = () => {

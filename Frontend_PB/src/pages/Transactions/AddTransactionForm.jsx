@@ -43,24 +43,24 @@ const AddTransactionForm = ({ onSuccess, compact = false }) => {
   if (compact) {
     return (
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
-        <input type="text" placeholder="I spent 200 on food" value={form.description} onChange={handleDescChange} className="flex-1 px-4 py-2 rounded-xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-emerald-300" />
-        <input type="number" placeholder="Amount" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-28 px-3 py-2 rounded-xl border border-gray-200" />
-        <button type="submit" disabled={loading} className="bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 transition">Add</button>
+        <input type="text" placeholder="I spent 200 on food" value={form.description} onChange={handleDescChange} className="flex-1 rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-slate-800 focus:ring-2 focus:ring-emerald-300 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100" />
+        <input type="number" placeholder="Amount" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-28 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-slate-800 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100" />
+        <button type="submit" disabled={loading} className="rounded-xl bg-emerald-600 px-4 py-2 text-white transition hover:bg-emerald-700 dark:bg-teal-500 dark:hover:bg-teal-400">Add</button>
       </form>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 bg-white p-4 rounded-xl shadow-sm border border-emerald-100">
-      <h3 className="font-medium">➕ New Transaction</h3>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-emerald-100 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/75">
+      <h3 className="font-medium text-slate-800 dark:text-slate-100">➕ New Transaction</h3>
       <InputField placeholder="Description" value={form.description} onChange={handleDescChange} icon={Coffee} />
       <InputField type="number" placeholder="Amount" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} icon={DollarSign} />
-      <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-gray-200">
+      <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-slate-800 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100">
         {['Food','Rent','Travel','Leisure','Internet','Other'].map(c => <option key={c}>{c}</option>)}
       </select>
       <InputField type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} icon={Calendar} />
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <button type="submit" className="w-full bg-emerald-600 text-white py-2 rounded-xl font-medium">Save Transaction</button>
+      <button type="submit" className="w-full rounded-xl bg-emerald-600 py-2 font-medium text-white dark:bg-teal-500">Save Transaction</button>
     </form>
   );
 };

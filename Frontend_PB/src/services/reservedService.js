@@ -1,26 +1,17 @@
-import { mockReserved } from './mockApi';
+import api from './api';
 
 export const getReservedList = async () => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return [...mockReserved];
+  return await api.get('/reserved');
 };
 
 export const addReserved = async (reserved) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newReserved = { id: Date.now(), ...reserved, status: 'PENDING' };
-  mockReserved.push(newReserved);
-  return newReserved;
+  return await api.post('/reserved', reserved);
 };
 
 export const markReservedPaid = async (id) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const item = mockReserved.find(r => r.id === id);
-  if (item) item.status = 'PAID';
-  return item;
+  return await api.put(`/reserved/${id}/pay`);
 };
 
 export const deleteReserved = async (id) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockReserved.findIndex(r => r.id === id);
-  if (index !== -1) mockReserved.splice(index, 1);
+  return await api.delete(`/reserved/${id}`);
 };

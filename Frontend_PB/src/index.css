@@ -2,4 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* your custom styles */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-transparent text-slate-900 antialiased transition-colors duration-300 dark:text-slate-100;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    @apply bg-emerald-200 text-emerald-950;
+  }
+
+  .dark ::selection {
+    @apply bg-teal-300/30 text-teal-50;
+  }
+}

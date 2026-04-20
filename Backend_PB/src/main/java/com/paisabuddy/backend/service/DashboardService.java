@@ -2,7 +2,7 @@ package com.paisabuddy.backend.service;
 
 import org.springframework.stereotype.Service;
 
-import com.paisabuddy.backend.model.DashboardResponse;
+import com.paisabuddy.backend.dto.DashboardResponse;
 import com.paisabuddy.backend.model.Reserved;
 import com.paisabuddy.backend.model.Transaction;
 import com.paisabuddy.backend.model.User;
@@ -14,44 +14,49 @@ public class DashboardService {
 
     private final TransactionRepository transactionRepo;
     private final ReservedRepository reservedRepo;
-    private final UserService userService;
+    private final GoalService goalService;
 
     public DashboardService(TransactionRepository transactionRepo,
                             ReservedRepository reservedRepo,
-                            UserService userService) {
+                            GoalService goalService) {
         this.transactionRepo = transactionRepo;
         this.reservedRepo = reservedRepo;
-        this.userService = userService;
+        this.goalService = goalService;
     }
 
-    public DashboardResponse getDashboard(Long userId) {
+    public DashboardResponse getDashboard(User user) {
 
-        User user = userService.getUserById(userId);
+        double totalBalance = user.getMonthlyIncome() != null
+                ? user.getMonthlyIncome()
+                : 0;
 
-        // ✅ Total Spent
         double totalSpent = transactionRepo.findByUser(user)
                 .stream()
                 .mapToDouble(Transaction::getAmount)
                 .sum();
 
-        // ✅ Total Reserved (only pending)
         double totalReserved = reservedRepo.findByUser(user)
                 .stream()
                 .filter(r -> r.getStatus() == Reserved.Status.PENDING)
                 .mapToDouble(Reserved::getAmount)
                 .sum();
 
-        // ✅ Monthly Income
-        double income = user.getMonthlyIncome() != null ? user.getMonthlyIncome() : 0;
+        double totalGoalSavings = goalService.getTotalSavedAcrossGoals(user);
 
-        // ✅ Remaining Balance
-        double remainingBalance = income - (totalSpent + totalReserved);
+        double spendable = totalBalance - totalSpent - totalReserved - totalGoalSavings;
+
+        if (spendable < 0) spendable = 0;
+
+        double ratio = totalBalance > 0 ? spendable / totalBalance : 0;
+        String budgetHealth = ratio > 0.4 ? "GREEN" : ratio > 0.15 ? "YELLOW" : "RED";
 
         return new DashboardResponse(
+                totalBalance,
                 totalSpent,
                 totalReserved,
-                remainingBalance,
-                income
+                totalGoalSavings,
+                spendable,
+                budgetHealth
         );
     }
 }

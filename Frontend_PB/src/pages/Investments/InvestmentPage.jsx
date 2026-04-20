@@ -12,21 +12,21 @@ const InvestmentPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Investments</h1>
-        <div className="bg-white rounded-xl px-4 py-2 shadow-sm">
-          <p className="text-xs text-gray-500">Total Portfolio</p>
-          <p className="text-xl font-bold text-emerald-700">₹4,82,900</p>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Investments</h1>
+        <div className="rounded-xl bg-white/80 px-4 py-2 shadow-sm dark:bg-slate-900/75">
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total Portfolio</p>
+          <p className="text-xl font-bold text-emerald-700 dark:text-teal-300">₹4,82,900</p>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {suggestions.map((inv, idx) => <InvestmentCard key={idx} {...inv} />)}
       </div>
-      <div className="bg-white rounded-2xl p-5 shadow-md">
-        <h3 className="font-semibold">Suggested Portfolio Mix</h3>
+      <div className="rounded-2xl bg-white/80 p-5 shadow-md dark:bg-slate-900/75">
+        <h3 className="font-semibold text-slate-800 dark:text-slate-100">Suggested Portfolio Mix</h3>
         <div className="flex gap-4 mt-3 text-sm">
           <span className="px-3 py-1 bg-emerald-100 rounded-full text-emerald-700">Equity 60%</span>
           <span className="px-3 py-1 bg-blue-100 rounded-full text-blue-700">Debt 30%</span>
-          <span className="px-3 py-1 bg-gray-100 rounded-full text-gray-700">Others 10%</span>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700 dark:bg-slate-800 dark:text-slate-200">Others 10%</span>
         </div>
       </div>
     </div>

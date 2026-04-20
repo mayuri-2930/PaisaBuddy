@@ -30,7 +30,7 @@ const ReservedPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">Reserved Expenses</h1>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Reserved Expenses</h1>
         <AddReservedForm onSuccess={() => setRefresh(prev => prev + 1)} />
       </div>
       <Card>

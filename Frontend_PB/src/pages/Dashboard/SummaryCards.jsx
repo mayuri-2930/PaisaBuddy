@@ -1,32 +1,24 @@
 // src/pages/Dashboard/SummaryCards.jsx
 import React from 'react';
-import { categoryColors, getCategoryIcon } from '../../utils/categoryColors';
 import { formatCurrency } from '../../utils/dateFormatter';
 
-const SummaryCards = ({ categoryTotals, totalExpenses }) => {
-  const categories = ['Food', 'Rent', 'Travel', 'Leisure', 'Internet', 'Other'];
-  
+const SummaryCards = ({ totalSpent, totalReserved, totalGoalSavings, spendableBalance }) => {
+  const cards = [
+    { label: 'Total Spent', value: totalSpent, tone: 'text-rose-500' },
+    { label: 'Total Reserved', value: totalReserved, tone: 'text-amber-500' },
+    { label: 'Goal Savings', value: totalGoalSavings, tone: 'text-emerald-600' },
+    { label: 'Spendable Balance', value: spendableBalance, tone: 'text-cyan-600' },
+  ];
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-5">
-      <h3 className="font-semibold text-gray-800 mb-3">Expense Breakdown</h3>
-      <div className="space-y-3">
-        {categories.map(cat => {
-          const Icon = getCategoryIcon(cat);
-          const color = categoryColors[cat] || categoryColors.Other;
-          const amount = categoryTotals[cat] || 0;
-          const percent = totalExpenses ? (amount / totalExpenses * 100).toFixed(0) : 0;
+    <div className="rounded-2xl border border-emerald-100/70 bg-white/85 p-5 shadow-[0_18px_45px_-24px_rgba(15,118,110,0.35)] dark:border-slate-800 dark:bg-slate-900/75">
+      <h3 className="mb-3 font-semibold text-slate-800 dark:text-slate-100">Money Snapshot</h3>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {cards.map((card) => {
           return (
-            <div key={cat} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${color.bg} ${color.text}`}>
-                  <Icon size={14} />
-                </div>
-                <span className="text-sm font-medium">{cat}</span>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold">{formatCurrency(amount)}</p>
-                <p className="text-xs text-gray-400">{percent}%</p>
-              </div>
+            <div key={card.label} className="rounded-xl bg-slate-50/90 p-4 dark:bg-slate-950/40">
+              <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">{card.label}</p>
+              <p className={`mt-2 text-lg font-bold ${card.tone}`}>{formatCurrency(card.value || 0)}</p>
             </div>
           );
         })}

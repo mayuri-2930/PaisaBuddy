@@ -20,11 +20,11 @@ const AddReservedForm = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end bg-white p-4 rounded-xl shadow-sm">
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3 rounded-xl bg-white/80 p-4 shadow-sm dark:bg-slate-900/75">
       <InputField placeholder="Title (e.g., Rent)" value={title} onChange={e => setTitle(e.target.value)} />
       <InputField type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
       <InputField type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-      <button type="submit" disabled={loading} className="bg-emerald-600 text-white px-5 py-2 rounded-xl">+ Add Reserved</button>
+      <button type="submit" disabled={loading} className="rounded-xl bg-emerald-600 px-5 py-2 text-white dark:bg-teal-500">+ Add Reserved</button>
     </form>
   );
 };
