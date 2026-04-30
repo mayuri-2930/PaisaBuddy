@@ -3,9 +3,11 @@ package com.paisabuddy.backend.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.paisabuddy.backend.dto.GoalContributionResponse;
 import com.paisabuddy.backend.dto.GoalResponse;
@@ -37,13 +39,14 @@ public class GoalService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || auth.getName() == null) {
-            throw new RuntimeException("AUTH_NOT_FOUND_IN_SECURITY_CONTEXT");
+        if (auth == null || auth.getName() == null || auth.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
 
         String email = auth.getName().trim();
 
-        return userService.getUserByEmail(email);
+        return userService.findUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
     // =========================

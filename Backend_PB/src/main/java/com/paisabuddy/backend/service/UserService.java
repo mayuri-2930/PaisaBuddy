@@ -1,5 +1,7 @@
 package com.paisabuddy.backend.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.paisabuddy.backend.model.User;
@@ -23,6 +25,10 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     // Get by ID

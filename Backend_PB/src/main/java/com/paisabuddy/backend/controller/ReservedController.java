@@ -77,6 +77,6 @@ public class ReservedController {
 
         String email = auth.getName();
 
-        return userService.getUserByEmail(email);
+        return userService.findUserByEmail(email).orElse(null);
     }
 }

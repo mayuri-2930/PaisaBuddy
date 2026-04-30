@@ -1,0 +1,24 @@
+Starting PaisaBuddy frontend on http://127.0.0.1:3000...
+
+> frontend-pb@1.0.0 dev
+> vite --host 127.0.0.1 --port 3000
+
+
+  VITE v5.4.21  ready in 87 ms
+
+  ➜  Local:   http://127.0.0.1:3000/
+10:13:28 PM [vite] hmr update /src/index.css, /src/contexts/AuthContext.jsx
+10:13:28 PM [vite] hmr update /src/contexts/AuthContext.jsx, /src/index.css
+10:13:28 PM [vite] hmr update /src/pages/Dashboard/Dashboard.jsx, /src/index.css
+10:13:28 PM [vite] hmr update /src/index.css, /src/pages/Dashboard/Dashboard.jsx, /src/pages/Transactions/TransactionPage.jsx, /src/pages/Transactions/AddTransactionForm.jsx, /src/pages/ReservedExpenses/ReservedPage.jsx, /src/pages/ReservedExpenses/AddReservedForm.jsx, /src/contexts/AuthContext.jsx, /src/pages/Transactions/GoalPanel.jsx
+10:42:04 PM [vite] hmr update /src/pages/Dashboard/Dashboard.jsx, /src/index.css
+10:42:20 PM [vite] hmr update /src/components/TransactionCard.jsx, /src/index.css
+10:42:32 PM [vite] hmr update /src/index.css, /src/components/TransactionCard.jsx
+10:57:37 PM [vite] hmr update /src/pages/Dashboard/Dashboard.jsx, /src/index.css
+10:57:37 PM [vite] hmr update /src/index.css, /src/components/TransactionCard.jsx
+10:57:37 PM [vite] hmr update /src/components/TransactionCard.jsx, /src/index.css
+1:38:10 AM [vite] hmr update /src/contexts/AuthContext.jsx, /src/index.css
+1:38:10 AM [vite] hmr update /src/pages/Dashboard/Dashboard.jsx, /src/index.css
+1:38:10 AM [vite] hmr update /src/index.css, /src/contexts/AuthContext.jsx
+1:38:10 AM [vite] hmr invalidate /src/contexts/AuthContext.jsx Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+1:38:10 AM [vite] hmr update /src/App.jsx, /src/index.css, /src/components/Navbar.jsx, /src/pages/Login.jsx, /src/pages/Register.jsx, /src/pages/Dashboard/Dashboard.jsx, /src/pages/Transactions/TransactionPage.jsx, /src/pages/Profile/ProfilePage.jsx

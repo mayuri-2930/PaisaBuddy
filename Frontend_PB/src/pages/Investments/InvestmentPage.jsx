@@ -29,6 +29,11 @@ const InvestmentPage = () => {
           <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700 dark:bg-slate-800 dark:text-slate-200">Others 10%</span>
         </div>
       </div>
+      <div className='p-5 gap-4 space-y-3'>
+        <h1 className="text-5xl text-black py-2 bg-lime-400/40 align-middle text-center">Future Scope</h1>
+      <h2 className='text-blue-850 bg-yellow-200/20 text-center'>Will Work Later Here! We are Amimg to Add Personalised AI Investment Suggestion :D </h2>
+   
+      </div>
     </div>
   );
 };

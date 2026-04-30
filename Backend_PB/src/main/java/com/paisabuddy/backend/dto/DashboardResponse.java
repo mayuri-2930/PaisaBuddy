@@ -5,33 +5,28 @@ public class DashboardResponse {
     private Double totalBalance;
     private Double totalSpent;
     private Double totalReserved;
-    private Double totalGoalSavings;
+    private Double goalSaved;
     private Double spendable;
-    private String budgetHealth;
+    private Long activeGoals;
 
     public DashboardResponse(Double totalBalance,
                              Double totalSpent,
                              Double totalReserved,
-                             Double totalGoalSavings,
+                             Double goalSaved,
                              Double spendable,
-                             String budgetHealth) {
+                             Long activeGoals) {
         this.totalBalance = totalBalance;
         this.totalSpent = totalSpent;
         this.totalReserved = totalReserved;
-        this.totalGoalSavings = totalGoalSavings;
+        this.goalSaved = goalSaved;
         this.spendable = spendable;
-        this.budgetHealth = budgetHealth;
+        this.activeGoals = activeGoals;
     }
 
     public Double getTotalBalance() { return totalBalance; }
-
     public Double getTotalSpent() { return totalSpent; }
-
     public Double getTotalReserved() { return totalReserved; }
-
-    public Double getTotalGoalSavings() { return totalGoalSavings; }
-
+    public Double getGoalSaved() { return goalSaved; }
     public Double getSpendable() { return spendable; }
-
-    public String getBudgetHealth() { return budgetHealth; }
+    public Long getActiveGoals() { return activeGoals; }
 }

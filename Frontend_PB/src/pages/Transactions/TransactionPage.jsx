@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getTransactions } from '../../services/transactionService';
 import { getReservedList } from '../../services/reservedService';
 import { getGoals } from '../../services/goalService';
+import { getDashboard } from '../../services/dashboardService';
 import TransactionList from './TransactionList';
 import AddTransactionForm from './AddTransactionForm';
 import GoalPanel from './GoalPanel';
@@ -13,22 +14,34 @@ import { Filter } from 'lucide-react';
 
 const TransactionPage = () => {
   const { user } = useAuth();
+  const [dashboard, setDashboard] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [reserved, setReserved] = useState([]);
   const [goals, setGoals] = useState([]);
   const [filterCategory, setFilterCategory] = useState('');
   const [refresh, setRefresh] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    const [transactionData, reservedData, goalData] = await Promise.all([
-      getTransactions(),
-      getReservedList(),
-      getGoals(),
-    ]);
+    try {
+      setLoading(true);
 
-    setTransactions(Array.isArray(transactionData) ? transactionData : []);
-    setReserved(Array.isArray(reservedData) ? reservedData : []);
-    setGoals(Array.isArray(goalData) ? goalData : []);
+      const [dashboardData, transactionData, reservedData, goalData] = await Promise.all([
+        getDashboard(),
+        getTransactions(),
+        getReservedList(),
+        getGoals(),
+      ]);
+
+      setDashboard(dashboardData || null);
+      setTransactions(Array.isArray(transactionData) ? transactionData : []);
+      setReserved(Array.isArray(reservedData) ? reservedData : []);
+      setGoals(Array.isArray(goalData) ? goalData : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -36,13 +49,25 @@ const TransactionPage = () => {
   }, [refresh]);
 
   const filtered = filterCategory ? transactions.filter(t => t.category === filterCategory) : transactions;
-  const monthlyIncome = Number(user?.monthlyIncome || 0);
-  const totalSpent = transactions.reduce((sum, txn) => sum + (txn.amount || 0), 0);
-  const totalReserved = reserved
-    .filter((item) => item.status === 'PENDING')
-    .reduce((sum, item) => sum + (item.amount || 0), 0);
-  const totalGoalSavings = goals.reduce((sum, goal) => sum + (goal.totalSaved || 0), 0);
-  const spendableBalance = Math.max(monthlyIncome - totalSpent - totalReserved - totalGoalSavings, 0);
+  const monthlyIncome = Number(dashboard?.totalBalance ?? user?.monthlyIncome ?? 0);
+  const totalSpent = Number(
+    dashboard?.totalSpent ??
+      transactions.reduce((sum, txn) => sum + (txn.amount || 0), 0)
+  );
+  const totalReserved = Number(
+    dashboard?.totalReserved ??
+      reserved
+        .filter((item) => item.status === 'PENDING')
+        .reduce((sum, item) => sum + (item.amount || 0), 0)
+  );
+  const totalGoalSavings = Number(
+    dashboard?.goalSaved ??
+      goals.reduce((sum, goal) => sum + (goal.totalSaved || 0), 0)
+  );
+  const spendableBalance = Number(
+    dashboard?.spendable ??
+      Math.max(monthlyIncome - totalSpent - totalReserved - totalGoalSavings, 0)
+  );
 
   return (
     <div className="space-y-6">
@@ -63,7 +88,7 @@ const TransactionPage = () => {
         </Card>
         <GoalPanel
           goals={goals}
-          loading={false}
+          loading={loading}
           spendableBalance={spendableBalance}
           onGoalsUpdated={fetchData}
         />

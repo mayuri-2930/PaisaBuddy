@@ -15,7 +15,7 @@ const InvestmentCard = ({ name, desc, amount, risk, icon: Icon, color }) => {
         <button className="px-4 py-1.5 bg-gray-900 text-white text-sm rounded-full hover:bg-emerald-700 transition">Invest →</button>
       </div>
       <span className="text-xs text-gray-400 mt-2">Risk: {risk}</span>
-    </Card>
+       </Card>
   );
 };
 

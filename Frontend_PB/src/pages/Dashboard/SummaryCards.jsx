@@ -1,28 +1,62 @@
-// src/pages/Dashboard/SummaryCards.jsx
 import React from 'react';
 import { formatCurrency } from '../../utils/dateFormatter';
+import { CreditCard, PiggyBank } from 'lucide-react';
 
-const SummaryCards = ({ totalSpent, totalReserved, totalGoalSavings, spendableBalance }) => {
-  const cards = [
-    { label: 'Total Spent', value: totalSpent, tone: 'text-rose-500' },
-    { label: 'Total Reserved', value: totalReserved, tone: 'text-amber-500' },
-    { label: 'Goal Savings', value: totalGoalSavings, tone: 'text-emerald-600' },
-    { label: 'Spendable Balance', value: spendableBalance, tone: 'text-cyan-600' },
-  ];
-
+const SummaryCards = ({
+  totalSpent,
+  totalReserved,
+  totalGoalSavings,
+  spendableBalance
+}) => {
   return (
-    <div className="rounded-2xl border border-emerald-100/70 bg-white/85 p-5 shadow-[0_18px_45px_-24px_rgba(15,118,110,0.35)] dark:border-slate-800 dark:bg-slate-900/75">
-      <h3 className="mb-3 font-semibold text-slate-800 dark:text-slate-100">Money Snapshot</h3>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {cards.map((card) => {
-          return (
-            <div key={card.label} className="rounded-xl bg-slate-50/90 p-4 dark:bg-slate-950/40">
-              <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">{card.label}</p>
-              <p className={`mt-2 text-lg font-bold ${card.tone}`}>{formatCurrency(card.value || 0)}</p>
-            </div>
-          );
-        })}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      {/* Spendable Balance — large purple card */}
+      <div className="md:col-span-1 rounded-2xl bg-gradient-to-br from-[#372949] via-[#947901] to-[#394c93] p-6 text-white shadow-lg">
+        <p className="text-xs font-semibold uppercase tracking-widest text-purple-200">
+          Spendable Balance
+        </p>
+        <p className="mt-3 text-4xl font-bold tracking-tight">
+          {formatCurrency(spendableBalance || 0)}
+        </p>
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-purple-200">
+          <CreditCard size={13} />
+          Ready for allocation
+        </p>
       </div>
+
+      {/* Total Spent */}
+      <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Total Spent
+          </p>
+          <span className="rounded-lg bg-rose-50 dark:bg-rose-900/30 p-1.5 text-rose-500">
+            <CreditCard size={16} />
+          </span>
+        </div>
+        <p className="mt-4 text-3xl font-bold text-slate-800 dark:text-slate-100">
+          {formatCurrency(totalSpent || 0)}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">+12% from last month</p>
+      </div>
+
+      {/* Goal Savings */}
+      <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Goal Savings
+          </p>
+          <span className="rounded-lg bg-amber-50 dark:bg-amber-900/30 p-1.5 text-amber-500">
+            <PiggyBank size={16} />
+          </span>
+        </div>
+        <p className="mt-4 text-3xl font-bold text-slate-800 dark:text-slate-100">
+          {formatCurrency(totalGoalSavings || 0)}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">4 Active Goals</p>
+      </div>
+
     </div>
   );
 };

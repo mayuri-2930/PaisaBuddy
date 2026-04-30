@@ -15,10 +15,13 @@ The following guides illustrate how to use some features concretely:
 * [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
 * [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
 
+### Local Run
+
+Use `./run-local.sh` from `Backend_PB/` for local development. It starts the backend on port `8081` by default and safely stops an older PaisaBuddy backend instance on that same port before relaunching.
+
 ### Maven Parent overrides
 
 Due to Maven's design, elements are inherited from the parent POM to the project POM.
 While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
 To prevent this, the project POM contains empty overrides for these elements.
 If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
-

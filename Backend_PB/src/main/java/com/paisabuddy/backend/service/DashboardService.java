@@ -6,6 +6,8 @@ import com.paisabuddy.backend.dto.DashboardResponse;
 import com.paisabuddy.backend.model.Reserved;
 import com.paisabuddy.backend.model.Transaction;
 import com.paisabuddy.backend.model.User;
+import com.paisabuddy.backend.repository.GoalContributionRepository;
+import com.paisabuddy.backend.repository.GoalRepository;
 import com.paisabuddy.backend.repository.ReservedRepository;
 import com.paisabuddy.backend.repository.TransactionRepository;
 
@@ -14,49 +16,59 @@ public class DashboardService {
 
     private final TransactionRepository transactionRepo;
     private final ReservedRepository reservedRepo;
-    private final GoalService goalService;
+    private final GoalRepository goalRepo;
+    private final GoalContributionRepository contributionRepo;
 
     public DashboardService(TransactionRepository transactionRepo,
                             ReservedRepository reservedRepo,
-                            GoalService goalService) {
+                            GoalRepository goalRepo,
+                            GoalContributionRepository contributionRepo) {
         this.transactionRepo = transactionRepo;
         this.reservedRepo = reservedRepo;
-        this.goalService = goalService;
+        this.goalRepo = goalRepo;
+        this.contributionRepo = contributionRepo;
     }
 
     public DashboardResponse getDashboard(User user) {
 
-        double totalBalance = user.getMonthlyIncome() != null
-                ? user.getMonthlyIncome()
-                : 0;
+        // 💰 Income
+        double totalBalance = user.getMonthlyIncome() != null ? user.getMonthlyIncome() : 0;
 
+        // 📉 Spent
         double totalSpent = transactionRepo.findByUser(user)
                 .stream()
                 .mapToDouble(Transaction::getAmount)
                 .sum();
 
+        // 🧾 Reserved
         double totalReserved = reservedRepo.findByUser(user)
                 .stream()
                 .filter(r -> r.getStatus() == Reserved.Status.PENDING)
                 .mapToDouble(Reserved::getAmount)
                 .sum();
 
-        double totalGoalSavings = goalService.getTotalSavedAcrossGoals(user);
+        // 🎯 Goal Saved (FIXED MISSING PART)
+        double goalSaved = contributionRepo.findAll()
+                .stream()
+                .filter(c -> c.getGoal().getUser().getId().equals(user.getId()))
+                .mapToDouble(c -> c.getAmount())
+                .sum();
 
-        double spendable = totalBalance - totalSpent - totalReserved - totalGoalSavings;
+        // 🎯 Active Goals
+        long activeGoals = goalRepo.findByUser(user).size();
+
+        // 💸 Spendable
+        double spendable = totalBalance - totalSpent - totalReserved - goalSaved;
 
         if (spendable < 0) spendable = 0;
-
-        double ratio = totalBalance > 0 ? spendable / totalBalance : 0;
-        String budgetHealth = ratio > 0.4 ? "GREEN" : ratio > 0.15 ? "YELLOW" : "RED";
 
         return new DashboardResponse(
                 totalBalance,
                 totalSpent,
                 totalReserved,
-                totalGoalSavings,
+                goalSaved,
                 spendable,
-                budgetHealth
+                activeGoals
         );
     }
 }

@@ -1,90 +1,7 @@
-// // src/pages/Dashboard/Dashboard.jsx
-// import React, { useState, useEffect } from 'react';
-// import { useAuth } from '../../contexts/AuthContext';
-// import { getTransactions } from '../../services/transactionService';
-// import { getReservedList } from '../../services/reservedService';
-// import DashboardHeader from './DashboardHeader';
-// import SummaryCards from './SummaryCards';
-// import RecentTransactions from './RecentTransactions';
-// import Card from '../../components/Card';
-// import AddTransactionForm from '../Transactions/AddTransactionForm';
-// import LoadingSkeleton from '../../components/LoadingSkeleton';
-
-// const Dashboard = () => {
-//   const { user } = useAuth();
-//   const [transactions, setTransactions] = useState([]);
-//   const [reserved, setReserved] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [refresh, setRefresh] = useState(0);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const [txns, reservedData] = await Promise.all([getTransactions(), getReservedList()]);
-//         setTransactions(txns || []);
-//         setReserved(reservedData || []);
-//         setError(null);
-//       } catch (err) {
-//         console.error(err);
-//         setError('Failed to load data. Make sure the backend is running on http://localhost:8080');
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchData();
-//   }, [refresh]);
-
-//   if (loading) return <LoadingSkeleton type="transaction" count={5} />;
-//   if (error) return <div className="text-center text-red-500 p-10 bg-white rounded-xl shadow">{error}</div>;
-
-//   const totalExpenses = transactions.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + t.amount, 0);
-//   const monthlyIncome = user?.monthlyIncome || 125000;
-//   const remaining = monthlyIncome - totalExpenses;
-
-//   const categoryTotals = transactions.reduce((acc, t) => {
-//     if (t.type === 'EXPENSE') {
-//       acc[t.category] = (acc[t.category] || 0) + t.amount;
-//     }
-//     return acc;
-//   }, {});
-
-//   return (
-//     <div className="space-y-6">
-//       <DashboardHeader userName={user?.name} remaining={remaining} />
-      
-//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-//         <div className="lg:col-span-2 space-y-6">
-//           <Card className="p-5">
-//             <h3 className="text-lg font-semibold mb-3 text-gray-800">Quick Log</h3>
-//             <AddTransactionForm onSuccess={() => setRefresh(prev => prev + 1)} compact />
-//           </Card>
-//           <RecentTransactions transactions={transactions.slice(0, 5)} />
-//         </div>
-        
-//         <div className="space-y-6">
-//           <SummaryCards categoryTotals={categoryTotals} totalExpenses={totalExpenses} />
-//           <Card>
-//             <h3 className="font-semibold text-gray-800 mb-3">Reserved Snapshot</h3>
-//             <div className="space-y-2">
-//               {reserved.slice(0, 3).map(r => (
-//                 <div key={r.id} className="flex justify-between text-sm border-b border-gray-100 py-2">
-//                   <span>{r.title}</span>
-//                   <span className="font-medium">₹{r.amount}</span>
-//                 </div>
-//               ))}
-//               {reserved.length === 0 && <p className="text-gray-400 text-sm">No reserved expenses</p>}
-//             </div>
-//           </Card>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+
+import { getDashboard } from '../../services/dashboardService';
 import { getTransactions } from '../../services/transactionService';
 import { getReservedList } from '../../services/reservedService';
 import { getGoals } from '../../services/goalService';
@@ -97,9 +14,13 @@ import GoalProgressCard from './GoalProgressCard';
 import Card from '../../components/Card';
 import AddTransactionForm from '../Transactions/AddTransactionForm';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import { Lock } from 'lucide-react';
+import { formatCurrency } from '../../utils/dateFormatter';
 
 const Dashboard = () => {
   const { user } = useAuth();
+
+  const [dashboard, setDashboard] = useState(null);
 
   const [transactions, setTransactions] = useState([]);
   const [reserved, setReserved] = useState([]);
@@ -115,21 +36,34 @@ const Dashboard = () => {
       setLoading(true);
 
       try {
-        const [txns, reservedData] = await Promise.all([
+        const [dash, txns, reservedData, goalData] = await Promise.allSettled([
+          getDashboard(),
           getTransactions(),
           getReservedList(),
+          getGoals()
         ]);
 
-        const goalData = await getGoals();
+        if (dash.status !== 'fulfilled') {
+          throw dash.reason;
+        }
 
-        setTransactions(Array.isArray(txns) ? txns : []);
-        setReserved(Array.isArray(reservedData) ? reservedData : []);
-        setGoals(Array.isArray(goalData) ? goalData : []);
+        setDashboard(dash.value);
+        setTransactions(txns.status === 'fulfilled' && Array.isArray(txns.value) ? txns.value : []);
+        setReserved(
+          reservedData.status === 'fulfilled' && Array.isArray(reservedData.value)
+            ? reservedData.value
+            : []
+        );
+        setGoals(goalData.status === 'fulfilled' && Array.isArray(goalData.value) ? goalData.value : []);
 
         setError(null);
       } catch (err) {
         console.error(err);
-        setError('Failed to load data. Backend may be down or token invalid.');
+        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          setError('Your session expired. Please log in again.');
+        } else {
+          setError('We could not load the dashboard right now.');
+        }
       } finally {
         setLoading(false);
       }
@@ -140,85 +74,97 @@ const Dashboard = () => {
 
   if (loading) return <LoadingSkeleton type="transaction" count={5} />;
 
-  if (error)
+  if (error) {
     return (
-      <div className="text-center text-red-500 p-10 bg-white rounded-xl shadow">
+      <div className="p-10 text-center text-red-500 bg-white rounded-xl shadow">
         {error}
       </div>
     );
+  }
 
-  const totalSpent = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const totalReserved = reserved
-    .filter((item) => item.status === 'PENDING')
-    .reduce((sum, item) => sum + (item.amount || 0), 0);
-  const totalGoalSavings = goals.reduce((sum, goal) => sum + (goal.totalSaved || 0), 0);
+  const displayName =
+    user?.name ||
+    user?.email?.split('@')[0] ||
+    'User';
 
-  const monthlyIncome = user?.monthlyIncome || 125000;
-  const remaining = Math.max(monthlyIncome - totalSpent - totalReserved - totalGoalSavings, 0);
-
-  const categoryTotals = transactions.reduce((acc, t) => {
-    acc[t.category] = (acc[t.category] || 0) + (t.amount || 0);
-    return acc;
-  }, {});
-
-  const safeReserved = Array.isArray(reserved) ? reserved : [];
-  const safeGoals = Array.isArray(goals) ? goals : [];
-  const displayName = user?.name || user?.email?.split('@')[0] || 'User';
+  const totalReservedAmount = dashboard?.totalReserved || 0;
 
   return (
-    <div className="space-y-6">
-      <DashboardHeader userName={displayName} remaining={remaining} />
+    <div className="space-y-6 px-1">
 
-      <SummaryCards
-        totalSpent={totalSpent}
-        totalReserved={totalReserved}
-        totalGoalSavings={totalGoalSavings}
-        spendableBalance={remaining}
+      {/* Header: greeting + avatar */}
+      <DashboardHeader
+        userName={displayName}
+        remaining={dashboard?.spendable || 0}
       />
 
+      {/* 3-column summary cards */}
+      <SummaryCards
+        totalSpent={dashboard?.totalSpent || 0}
+        totalReserved={dashboard?.totalReserved || 0}
+        totalGoalSavings={dashboard?.goalSaved || 0}
+        spendableBalance={dashboard?.spendable || 0}
+      />
+
+      {/* Main grid: left sidebar (goal + reserved) | right (quick log + transactions) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* LEFT: Goal Progress + Reserved Snapshot */}
+        <div className="space-y-4">
+
+          <GoalProgressCard
+            goals={goals}
+            totalSavedAcrossGoals={dashboard?.goalSaved || 0}
+          />
+
+          {/* Reserved Snapshot */}
+          <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <Lock size={14} className="text-slate-400" />
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Total Reserved
+              </p>
+            </div>
+            <p className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+              {formatCurrency(totalReservedAmount)}
+            </p>
+            <p className="text-xs text-slate-400 mb-4">
+              Reserved for upcoming bills and recurring commitments.
+            </p>
+
+            <div className="space-y-2">
+              {(reserved || []).slice(0, 3).map(r => (
+                <div key={r.id} className="flex justify-between py-2 text-sm border-b border-slate-100 dark:border-slate-700 last:border-0">
+                  <span className="text-slate-600 dark:text-slate-300">{r.title}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">
+                    {formatCurrency(r.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT: Quick Log + Recent Transactions */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="p-5">
-            <h3 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-100">
+
+          <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
+            <h3 className="mb-3 text-base font-semibold text-slate-800 dark:text-slate-100">
               Quick Log
             </h3>
-
             <AddTransactionForm
               onSuccess={() => setRefresh(prev => prev + 1)}
               compact
             />
-          </Card>
+          </div>
 
-          <RecentTransactions transactions={transactions.slice(0, 5)} />
+          <RecentTransactions
+            transactions={transactions.slice(0, 5)}
+          />
+
         </div>
 
-        <div className="space-y-6">
-          <GoalProgressCard goals={safeGoals} totalSavedAcrossGoals={totalGoalSavings} />
-
-          <Card>
-            <h3 className="mb-3 font-semibold text-slate-800 dark:text-slate-100">
-              Reserved Snapshot
-            </h3>
-
-            <div className="space-y-2">
-              {safeReserved.slice(0, 3).map(r => (
-                <div
-                  key={r.id}
-                  className="flex justify-between border-b border-slate-100 py-2 text-sm dark:border-slate-800"
-                >
-                  <span>{r.title}</span>
-                  <span className="font-medium">₹{r.amount}</span>
-                </div>
-              ))}
-
-              {safeReserved.length === 0 && (
-                <p className="text-sm text-slate-400 dark:text-slate-500">
-                  No reserved expenses
-                </p>
-              )}
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );

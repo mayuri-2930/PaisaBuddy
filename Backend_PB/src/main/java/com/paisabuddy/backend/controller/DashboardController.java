@@ -33,9 +33,11 @@ public class DashboardController {
             return ResponseEntity.status(401).build();
         }
 
-        User user = userService.getUserByEmail(auth.getName());
+        User user = userService.findUserByEmail(auth.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
 
-        DashboardResponse response = service.getDashboard(user);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.getDashboard(user));
     }
 }
