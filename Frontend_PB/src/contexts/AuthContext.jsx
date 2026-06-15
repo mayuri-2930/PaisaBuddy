@@ -1,61 +1,45 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+// src/contexts/AuthContext.jsx
+import React, { createContext, useContext, useState } from 'react';
 import { loginUser, registerUser, logoutUser } from '../services/authService';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-  if (token) {
-    const storedUser = localStorage.getItem('user');
-
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.log("Invalid user in storage");
-        localStorage.removeItem('user');
-      }
-    }
-  }
-}, [token]);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored && stored !== 'undefined' ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
 
   const login = async (email, password) => {
-    const data = await loginUser(email, password);
-    setToken(data.token);
-    setUser(data.user || null);
-
-    if (data.user) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-    }
+    const { user: u } = await loginUser(email, password);
+    localStorage.setItem('user', JSON.stringify(u));
+    setUser(u);
+    return u;
   };
 
-  const register = async (userData) => {
-    const data = await registerUser(userData);
-    setToken(data.token);
-    setUser(data.user || null);
+  const register = async (payload) => {
+    const { user: u } = await registerUser(payload);
+    localStorage.setItem('user', JSON.stringify(u));
+    setUser(u);
+    return u;
+  };
 
-    if (data.user) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-    }
+  // Issue 2: updateUser saves name/profile changes back to state + localStorage
+  const updateUser = (updates) => {
+    const updated = { ...user, ...updates };
+    localStorage.setItem('user', JSON.stringify(updated));
+    setUser(updated);
   };
 
   const logout = () => {
     logoutUser();
-    setToken(null);
     setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  const updateUser = (updated) => {
-    setUser(updated);
-    localStorage.setItem('user', JSON.stringify(updated));
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

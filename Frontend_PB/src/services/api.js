@@ -1,63 +1,42 @@
+// src/services/api.js
 import axios from 'axios';
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
 
-const clearSession = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-};
-
-// ========================
-// Axios Instance
-// ========================
 const api = axios.create({
   baseURL: API_BASE,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// ========================
-// Attach JWT Token
-// ========================
+// ── Request interceptor ───────────────────────────────────────────────────
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Never attach token to auth endpoints — avoids stale-token loops
+    const isAuthEndpoint = config.url?.includes('/auth/');
+    if (!isAuthEndpoint) {
+      const token = localStorage.getItem('token');
+      if (token) config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ========================
-// Response Handler
-// ========================
+// ── Response interceptor ──────────────────────────────────────────────────
 api.interceptors.response.use(
-  (response) => response.data, // IMPORTANT: return only data
+  (response) => response.data,
   (error) => {
     const status = error.response?.status;
-    const message =
-      error.response?.data?.message ||
-      error.response?.data ||
-      error.message;
 
     if (status === 401 || status === 403) {
-      clearSession();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
 
-      if (
-        typeof window !== 'undefined' &&
-        !['/login', '/register'].includes(window.location.pathname)
-      ) {
+      if (typeof window !== 'undefined' &&
+          !['/login', '/register'].includes(window.location.pathname)) {
         window.location.replace('/login');
       }
     }
-
-    console.error('API ERROR:', message);
 
     return Promise.reject(error);
   }

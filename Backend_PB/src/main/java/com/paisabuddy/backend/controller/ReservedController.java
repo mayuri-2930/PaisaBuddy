@@ -31,52 +31,45 @@ public class ReservedController {
         this.userService = userService;
     }
 
-    // Add Reserved
+    /** Add a reserved entry. Returns all generated instances (1 for ONE_TIME, N for recurring). */
     @PostMapping
-    public ResponseEntity<Reserved> add(@RequestBody Reserved reserved) {
-
+    public ResponseEntity<List<Reserved>> add(@RequestBody Reserved reserved) {
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
 
-        Reserved saved = service.addReserved(user.getId(), reserved);
+        List<Reserved> saved = service.addReserved(user.getId(), reserved);
         return ResponseEntity.ok(saved);
     }
 
-    // Get Reserved
+    /** Get all reserved entries for the logged-in user. */
     @GetMapping
     public ResponseEntity<List<Reserved>> getAll() {
-
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
 
-        List<Reserved> list = service.getReserved(user.getId());
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(service.getReserved(user.getId()));
     }
 
-    // Mark as Paid
+    /** Mark a specific instance as paid — also creates an expense transaction. */
     @PutMapping("/{id}/pay")
     public ResponseEntity<Reserved> pay(@PathVariable Long id) {
         return ResponseEntity.ok(service.markAsPaid(id));
     }
 
-    // Delete Reserved
+    /**
+     * Delete a reserved entry.
+     * If the entry is a parent (has child instances), all instances are deleted.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReserved(@PathVariable Long id) {
         service.deleteReserved(id);
         return ResponseEntity.ok().build();
     }
 
-    // =========================
-    // AUTH FIX (NO LOGIC CHANGE)
-    // =========================
+    // ── Auth helper ───────────────────────────────────────────────────────
     private User getAuthenticatedUser() {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         if (auth == null || auth.getName() == null) return null;
-
-        String email = auth.getName();
-
-        return userService.findUserByEmail(email).orElse(null);
+        return userService.findUserByEmail(auth.getName()).orElse(null);
     }
 }

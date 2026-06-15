@@ -1,17 +1,18 @@
+// src/pages/Dashboard/SummaryCards.jsx
 import React from 'react';
 import { formatCurrency } from '../../utils/dateFormatter';
-import { CreditCard, PiggyBank } from 'lucide-react';
+import { CreditCard, PiggyBank, Lock } from 'lucide-react';
 
 const SummaryCards = ({
   totalSpent,
-  totalReserved,
+  totalReserved,       // current month's reserved (deducted from spendable)
   totalGoalSavings,
-  spendableBalance
+  spendableBalance,
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-      {/* Spendable Balance — large purple card */}
+      {/* Spendable Balance */}
       <div className="md:col-span-1 rounded-2xl bg-gradient-to-br from-[#372949] via-[#947901] to-[#394c93] p-6 text-white shadow-lg">
         <p className="text-xs font-semibold uppercase tracking-widest text-purple-200">
           Spendable Balance
@@ -21,7 +22,7 @@ const SummaryCards = ({
         </p>
         <p className="mt-3 flex items-center gap-1.5 text-xs text-purple-200">
           <CreditCard size={13} />
-          Ready for allocation
+          After reserved &amp; goal deductions
         </p>
       </div>
 
@@ -38,23 +39,25 @@ const SummaryCards = ({
         <p className="mt-4 text-3xl font-bold text-slate-800 dark:text-slate-100">
           {formatCurrency(totalSpent || 0)}
         </p>
-        <p className="mt-1 text-xs text-slate-400">+12% from last month</p>
+        <p className="mt-1 text-xs text-slate-400">Includes paid reserved expenses</p>
       </div>
 
-      {/* Goal Savings */}
+      {/* Reserved This Month */}
       <div className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
         <div className="flex items-start justify-between">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Goal Savings
+            Reserved (This Month)
           </p>
           <span className="rounded-lg bg-amber-50 dark:bg-amber-900/30 p-1.5 text-amber-500">
-            <PiggyBank size={16} />
+            <Lock size={16} />
           </span>
         </div>
         <p className="mt-4 text-3xl font-bold text-slate-800 dark:text-slate-100">
-          {formatCurrency(totalGoalSavings || 0)}
+          {formatCurrency(totalReserved || 0)}
         </p>
-        <p className="mt-1 text-xs text-slate-400">4 Active Goals</p>
+        <p className="mt-1 text-xs text-slate-400">
+          Locked for current month's bills
+        </p>
       </div>
 
     </div>

@@ -28,39 +28,37 @@ public class TransactionController {
         this.userService = userService;
     }
 
-    // Add transaction
+    /** Add a DEBIT transaction. Blocked if spendable is insufficient. */
     @PostMapping
-    public ResponseEntity<Transaction> addTransaction(@RequestBody Transaction transaction) {
-
+    public ResponseEntity<?> addTransaction(@RequestBody Transaction transaction) {
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
-
-        Transaction savedTransaction = transactionService.addTransaction(user.getId(), transaction);
-        return ResponseEntity.ok(savedTransaction);
+        try {
+            return ResponseEntity.ok(transactionService.addTransaction(user.getId(), transaction));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // Get transactions
+    /** Add a CREDIT transaction (bonus, freelance, etc.). Always allowed. */
+    @PostMapping("/credit")
+    public ResponseEntity<Transaction> addCredit(@RequestBody Transaction transaction) {
+        User user = getAuthenticatedUser();
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(transactionService.addCredit(user.getId(), transaction));
+    }
+
+    /** All transactions sorted latest first. */
     @GetMapping
     public ResponseEntity<List<Transaction>> getTransactions() {
-
         User user = getAuthenticatedUser();
         if (user == null) return ResponseEntity.status(401).build();
-
-        List<Transaction> transactions = transactionService.getTransactions(user.getId());
-        return ResponseEntity.ok(transactions);
+        return ResponseEntity.ok(transactionService.getTransactions(user.getId()));
     }
 
-    // =========================
-    // AUTH FIX (NO LOGIC CHANGE)
-    // =========================
     private User getAuthenticatedUser() {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         if (auth == null || auth.getName() == null) return null;
-
-        String email = auth.getName();
-
-        return userService.findUserByEmail(email).orElse(null);
+        return userService.findUserByEmail(auth.getName()).orElse(null);
     }
 }

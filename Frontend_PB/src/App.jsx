@@ -14,8 +14,8 @@ import InvestmentPage from './pages/Investments';
 import ProfilePage from './pages/Profile';
 
 const ProtectedRoute = ({ children }) => {
-  const { token } = useAuth();
-  return token ? children : <Navigate to="/login" />;
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 const AppLayout = ({ children }) => {
@@ -35,35 +35,25 @@ const AppLayout = ({ children }) => {
 };
 
 function AppRoutes() {
-  const { token } = useAuth();
+  const { user } = useAuth();
   return (
     <Routes>
-      <Route path="/login" element={!token ? <Login /> : <Navigate to="/" />} />
-      <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+      <Route path="/login"    element={!user ? <Login />    : <Navigate to="/" replace />} />
+      <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
       <Route path="/" element={
-        <ProtectedRoute>
-          <AppLayout><Dashboard /></AppLayout>
-        </ProtectedRoute>
+        <ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>
       } />
       <Route path="/transactions" element={
-        <ProtectedRoute>
-          <AppLayout><TransactionPage /></AppLayout>
-        </ProtectedRoute>
+        <ProtectedRoute><AppLayout><TransactionPage /></AppLayout></ProtectedRoute>
       } />
       <Route path="/reserved" element={
-        <ProtectedRoute>
-          <AppLayout><ReservedPage /></AppLayout>
-        </ProtectedRoute>
+        <ProtectedRoute><AppLayout><ReservedPage /></AppLayout></ProtectedRoute>
       } />
       <Route path="/investments" element={
-        <ProtectedRoute>
-          <AppLayout><InvestmentPage /></AppLayout>
-        </ProtectedRoute>
+        <ProtectedRoute><AppLayout><InvestmentPage /></AppLayout></ProtectedRoute>
       } />
       <Route path="/profile" element={
-        <ProtectedRoute>
-          <AppLayout><ProfilePage /></AppLayout>
-        </ProtectedRoute>
+        <ProtectedRoute><AppLayout><ProfilePage /></AppLayout></ProtectedRoute>
       } />
     </Routes>
   );

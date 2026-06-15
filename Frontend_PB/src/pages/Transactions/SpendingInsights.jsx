@@ -1,45 +1,38 @@
+// src/pages/Transactions/SpendingInsights.jsx
 import React from 'react';
 import Card from '../../components/Card';
+import TransactionChart from './TransactionChart';
 import { formatCurrency } from '../../utils/dateFormatter';
 
 const HEALTH_STYLES = {
-  GREEN: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
-  YELLOW: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-  RED: 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300',
+  GREEN:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300',
+  YELLOW: 'bg-amber-100  text-amber-700  dark:bg-amber-950/50  dark:text-amber-300',
+  RED:    'bg-rose-100   text-rose-700   dark:bg-rose-950/50   dark:text-rose-300',
 };
 
 const getBudgetHealth = (income, spendableBalance) => {
   if (!income || income <= 0) return 'RED';
-
   const ratio = spendableBalance / income;
-  if (ratio > 0.4) return 'GREEN';
+  if (ratio > 0.4)  return 'GREEN';
   if (ratio > 0.15) return 'YELLOW';
   return 'RED';
 };
 
 const groupByMonth = (items, getAmount) => {
   const map = new Map();
-
-  items.forEach((item) => {
+  items.forEach(item => {
     const value = getAmount(item);
-    const date = new Date(item.date || item.createdAt || item.targetDate);
-
-    if (Number.isNaN(date.getTime()) || !value) {
-      return;
-    }
-
+    const date  = new Date(item.date || item.createdAt || item.targetDate);
+    if (Number.isNaN(date.getTime()) || !value) return;
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     map.set(key, (map.get(key) || 0) + value);
   });
-
   return Array.from(map.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-6)
     .map(([key, amount]) => {
       const [year, month] = key.split('-');
-      const label = new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('en-IN', {
-        month: 'short',
-      });
+      const label = new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('en-IN', { month: 'short' });
       return { key, label, amount };
     });
 };
@@ -49,30 +42,56 @@ const categoryBreakdown = (transactions) => {
     acc[txn.category] = (acc[txn.category] || 0) + (txn.amount || 0);
     return acc;
   }, {});
-
-  return Object.entries(totals)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  return Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 5);
 };
 
-const SpendingInsights = ({ transactions, goals, income, spendableBalance, totalGoalSavings }) => {
-  const health = getBudgetHealth(income, spendableBalance);
+/**
+ * SpendingInsights
+ *
+ * Props:
+ *   transactions      – all expense transactions
+ *   goals             – goals array (for monthly savings bars)
+ *   goalContributions – flat array of { amount, category, date } for chart
+ *   income            – user's monthly income
+ *   spendableBalance  – calculated spendable remaining
+ *   totalGoalSavings  – total saved across all goals
+ */
+const SpendingInsights = ({
+  transactions,
+  goals,
+  goalContributions = [],
+  income,
+  spendableBalance,
+  totalGoalSavings,
+}) => {
+  const health      = getBudgetHealth(income, spendableBalance);
   const healthLabel = health === 'GREEN' ? 'Healthy' : health === 'YELLOW' ? 'Watchlist' : 'Critical';
-  const monthlySpending = groupByMonth(transactions, (txn) => txn.amount || 0);
-  const goalContributions = goals.flatMap((goal) =>
-    (goal.contributions || []).map((contribution) => ({
-      ...contribution,
-      date: contribution.contributedAt,
-    }))
+
+  const monthlySpending = groupByMonth(transactions, txn => txn.amount || 0);
+
+  // For the monthly goal savings bar chart, use contributions from goals
+  const goalContribFlat = goals.flatMap(goal =>
+    (goal.contributions || []).map(c => ({ ...c, date: c.contributedAt }))
   );
-  const monthlyGoalSavings = groupByMonth(goalContributions, (contribution) => contribution.amount || 0);
+  const monthlyGoalSavings = groupByMonth(goalContribFlat, c => c.amount || 0);
+
   const categories = categoryBreakdown(transactions);
-  const maxSpend = Math.max(...monthlySpending.map((item) => item.amount), 1);
-  const maxSaved = Math.max(...monthlyGoalSavings.map((item) => item.amount), 1);
+  const maxSpend   = Math.max(...monthlySpending.map(i => i.amount), 1);
+  const maxSaved   = Math.max(...monthlyGoalSavings.map(i => i.amount), 1);
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+      {/* Left: chart + monthly spending */}
       <Card className="xl:col-span-2">
+        {/* Pie/Bar chart — pie default, shows all transactions + savings */}
+        <div className="mb-6">
+          <TransactionChart
+            transactions={transactions}
+            goalContributions={goalContributions}
+          />
+        </div>
+
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold text-slate-800 dark:text-slate-100">Monthly Spending</h3>
           <span className="text-xs text-slate-400 dark:text-slate-500">Last 6 months</span>
@@ -82,7 +101,7 @@ const SpendingInsights = ({ transactions, goals, income, spendableBalance, total
             {monthlySpending.length === 0 ? (
               <p className="py-6 text-sm text-slate-400 dark:text-slate-500">No spending data yet.</p>
             ) : (
-              monthlySpending.map((item) => (
+              monthlySpending.map(item => (
                 <div key={item.key}>
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <span className="text-slate-600 dark:text-slate-300">{item.label}</span>
@@ -115,6 +134,7 @@ const SpendingInsights = ({ transactions, goals, income, spendableBalance, total
         </div>
       </Card>
 
+      {/* Right: Budget health */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold text-slate-800 dark:text-slate-100">Budget Health</h3>
@@ -126,7 +146,12 @@ const SpendingInsights = ({ transactions, goals, income, spendableBalance, total
         <div className="space-y-3">
           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950/40">
             <p className="text-xs text-slate-400 dark:text-slate-500">Spendable Balance</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{formatCurrency(spendableBalance)}</p>
+            <p className={`mt-1 text-2xl font-bold ${spendableBalance <= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-slate-100'}`}>
+              {formatCurrency(spendableBalance)}
+            </p>
+            {spendableBalance <= 0 && (
+              <p className="mt-1 text-xs text-rose-500">No balance left to spend.</p>
+            )}
           </div>
 
           <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-950/40">
@@ -134,9 +159,7 @@ const SpendingInsights = ({ transactions, goals, income, spendableBalance, total
             <p className="mt-1 text-xl font-semibold text-emerald-700 dark:text-teal-300">
               {formatCurrency(totalGoalSavings)}
             </p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Saved into goals so far
-            </p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Saved into goals so far</p>
           </div>
 
           <div>
@@ -145,7 +168,7 @@ const SpendingInsights = ({ transactions, goals, income, spendableBalance, total
               {monthlyGoalSavings.length === 0 ? (
                 <p className="text-sm text-slate-400 dark:text-slate-500">No goal savings yet.</p>
               ) : (
-                monthlyGoalSavings.map((item) => (
+                monthlyGoalSavings.map(item => (
                   <div key={item.key}>
                     <div className="mb-1 flex items-center justify-between text-xs">
                       <span className="text-slate-500 dark:text-slate-400">{item.label}</span>

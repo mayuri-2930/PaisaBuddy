@@ -2656,3 +2656,91 @@ Hibernate: select r1_0.id,r1_0.amount,r1_0.due_date,r1_0.status,r1_0.title,r1_0.
 Hibernate: select gc1_0.id,gc1_0.amount,gc1_0.contributed_at,gc1_0.goal_id from goal_contribution gc1_0
 Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from goals g1_0 left join users u1_0 on u1_0.id=g1_0.user_id where g1_0.id=?
 Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,g1_0.user_id from goals g1_0 where g1_0.user_id=?
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/transaction
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/reserved
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/goals
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/dashboard
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,g1_0.user_id from goals g1_0 where g1_0.user_id=?
+Hibernate: select gc1_0.id,gc1_0.amount,gc1_0.contributed_at,gc1_0.goal_id from goal_contribution gc1_0 where gc1_0.goal_id=?
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.date,t1_0.description,t1_0.user_id from transactions t1_0 where t1_0.user_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.amount,r1_0.due_date,r1_0.status,r1_0.title,r1_0.user_id from reserved r1_0 where r1_0.user_id=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.date,t1_0.description,t1_0.user_id from transactions t1_0 where t1_0.user_id=?
+Hibernate: select r1_0.id,r1_0.amount,r1_0.due_date,r1_0.status,r1_0.title,r1_0.user_id from reserved r1_0 where r1_0.user_id=?
+Hibernate: select gc1_0.id,gc1_0.amount,gc1_0.contributed_at,gc1_0.goal_id from goal_contribution gc1_0
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/transaction
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from goals g1_0 left join users u1_0 on u1_0.id=g1_0.user_id where g1_0.id=?
+EMAIL FROM TOKEN: aarti@trial.com
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/goals
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+EMAIL FROM TOKEN: aarti@trial.com
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,g1_0.user_id from goals g1_0 where g1_0.user_id=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,g1_0.user_id from goals g1_0 where g1_0.user_id=?
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.date,t1_0.description,t1_0.user_id from transactions t1_0 where t1_0.user_id=?
+Hibernate: select gc1_0.id,gc1_0.amount,gc1_0.contributed_at,gc1_0.goal_id from goal_contribution gc1_0 where gc1_0.goal_id=?
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/reserved
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.amount,r1_0.due_date,r1_0.status,r1_0.title,r1_0.user_id from reserved r1_0 where r1_0.user_id=?
+========== JWT FILTER HIT ==========
+REQUEST URI: /api/dashboard
+AUTH HEADER: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYXJ0aUB0cmlhbC5jb20iLCJpYXQiOjE3Nzc1Nzk3MjIsImV4cCI6MTc3NzY2NjEyMn0.gi7exqxlDs8yXv32D3EjAgLViSiE9_px__inTgutdDI
+EMAIL FROM TOKEN: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+USER FOUND: true
+AUTH SET SUCCESS: aarti@trial.com
+Hibernate: select u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from users u1_0 where u1_0.email=?
+Hibernate: select t1_0.id,t1_0.amount,t1_0.category,t1_0.date,t1_0.description,t1_0.user_id from transactions t1_0 where t1_0.user_id=?
+Hibernate: select r1_0.id,r1_0.amount,r1_0.due_date,r1_0.status,r1_0.title,r1_0.user_id from reserved r1_0 where r1_0.user_id=?
+Hibernate: select gc1_0.id,gc1_0.amount,gc1_0.contributed_at,gc1_0.goal_id from goal_contribution gc1_0
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,u1_0.id,u1_0.email,u1_0.monthly_income,u1_0.name,u1_0.password from goals g1_0 left join users u1_0 on u1_0.id=g1_0.user_id where g1_0.id=?
+Hibernate: select g1_0.id,g1_0.created_at,g1_0.target_amount,g1_0.target_date,g1_0.title,g1_0.user_id from goals g1_0 where g1_0.user_id=?
+2026-05-01T01:59:21.661+05:30  WARN 10895 --- [paisabuddy] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m47s307ms).
+2026-05-01T01:59:39.908+05:30  INFO 10895 --- [paisabuddy] [ionShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-01T01:59:39.925+05:30  INFO 10895 --- [paisabuddy] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-05-01T01:59:39.934+05:30  INFO 10895 --- [paisabuddy] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-01T01:59:39.940+05:30  INFO 10895 --- [paisabuddy] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-01T01:59:39.996+05:30  INFO 10895 --- [paisabuddy] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
